@@ -1,3 +1,21 @@
+1.1.1
+- Modified getstream url
+
+1.1.0
+- Added German localisation
+- Added compatibility to frodo python engine
+
+1.0.1
+- Added French localisation
+
+1.0.0
+- Bochi joined the project
+- Fixed streaming
+- Added debug option (disabled by default)
+- Added localisation (English, Dutch)
+- Added to official dharma repository
+- Added compatibility to eden python engine
+
 0.4.1
 - Some bugfixes
 

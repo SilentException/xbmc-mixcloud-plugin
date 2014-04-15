@@ -3,7 +3,7 @@
 '''
 @author: jackyNIX/Bochi
 
-Copyright (C) 2011-2012 jackyNIX/Bochi
+Copyright (C) 2011-2014 jackyNIX/Bochi
 
 This file is part of XBMC MixCloud Plugin.
 
@@ -174,9 +174,9 @@ def test_authentication():
             if debugenabled:
                 print('MIXCLOUD - Authentication succeeded')
             return 0
-    
-    
-    
+
+
+
 def add_audio_item(infolabels,parameters={},img='',total=0):
     listitem=xbmcgui.ListItem(infolabels[STR_TITLE],infolabels[STR_ARTIST],iconImage=img,thumbnailImage=img)
     listitem.setInfo('Music',infolabels)
@@ -232,6 +232,7 @@ def show_home_menu():
             add_folder_item(name=STRLOC_MAINMENU_FOLLOWING,parameters={STR_MODE:MODE_FOLLOWING})
             add_folder_item(name=STRLOC_MAINMENU_PLAYLISTS,parameters={STR_MODE:MODE_PLAYLISTS})
         xbmcplugin.endOfDirectory(handle=plugin_handle,succeeded=True)
+
 
 
 def show_hot_menu(offset):
@@ -457,13 +458,28 @@ def get_stream(cloudcast_key):
     ck="http://www.mixcloud.com"+cloudcast_key
     if debugenabled:
         print('MIXCLOUD '+'resolving cloudcast stream for '+ck)
-    request = urllib2.Request('http://offliberty.com/off.php', 'track=%s&refext=' % ck)
-    request.add_header('Referer', 'http://offliberty.com/')
-    response = urllib2.urlopen(request)
-    data = response.read()
-    match = re.search('HREF="(.*)" class="download"', data)
-    return match.group(1)
- 
+    for retry in range(1, 10):
+#        request = urllib2.Request('http://offliberty.com/off.php', 'track=%s&refext=' % ck)
+#        request = urllib2.Request('http://offliberty.com/off54.php', 'track=%s&refext=' % ck)
+#        request.add_header('Referer', 'http://offliberty.com/')
+        values={
+                'track' : ck,
+                'refext' : ''
+               }
+        headers={
+                 'User-Agent' : 'Mozilla/5.0 (Windows NT 6.1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/35.0.1916.27 Safari/537.36',
+                 'Referer' : 'http://offliberty.com/'
+                }
+        postdata = urllib.urlencode(values)
+        request = urllib2.Request('http://offliberty.com/off54.php', postdata, headers, 'http://offliberty.com/')
+        response = urllib2.urlopen(request)
+        data=response.read()
+        match=re.search('HREF="(.*)" class="download"', data)
+        if match:
+            return match.group(1)
+        elif debugenabled:
+            print('wrong response try=%s code=%s len=%s, trying again...' % (retry, response.getcode(), len(data)))
+
 
 
 def get_categories(url):
